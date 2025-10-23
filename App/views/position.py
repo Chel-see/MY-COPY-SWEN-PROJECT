@@ -15,7 +15,7 @@ def get_all_positions():
 @jwt_required()
 def create_position():
      if current_user.role != 'employer':
-        return jsonify({f"Unauthorized user"}), 403
+        return jsonify({"message": "Unauthorized user"}), 403
     
      data = request.json
      position = open_position(title=data['title'], user_id=current_user.id, number_of_positions=data['number'])
@@ -32,7 +32,7 @@ def create_position():
 def get_employer_positions():
     
     if current_user.role != 'employer':
-        return jsonify({f"Unauthorized user"}), 403
+        return jsonify({"message": "Unauthorized user"}), 403
     
     return jsonify(get_positions_by_employer_json(current_user.id)), 200
 

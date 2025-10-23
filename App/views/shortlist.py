@@ -10,10 +10,10 @@ shortlist_views = Blueprint('shortlist_views', __name__)
 @jwt_required()
 def add_student_shortlist():
      if current_user.role != 'staff':
-        return jsonify({"Unauthorized user"}), 403
+        return jsonify({"message": "Unauthorized user"}), 403
     
      data = request.json
-     request_result = add_student_to_shortlist(data['student_id'], data['position.id'], current_user.id)
+     request_result = add_student_to_shortlist(student_id=data['student_id'], position_id=data['position_id'], staff_id=current_user.id)
      
      if request_result:
          return jsonify(request_result.toJSON()), 200
@@ -27,7 +27,7 @@ def add_student_shortlist():
 def get_student_shortlist(student_id):
     
     if current_user.role == 'student' and current_user.id != student_id:
-         return jsonify({f"Unauthorized user"}), 403
+         return jsonify({"message": "Unauthorized user"}), 403
      
      
     shortlists = get_shortlist_by_student(student_id)
@@ -40,7 +40,7 @@ def get_student_shortlist(student_id):
 @jwt_required()
 def shortlist_decide():
     if current_user.role != 'employer':
-        return jsonify({f"Unauthorized user"}), 403
+        return jsonify({"message": "Unauthorized user"}), 403
     
     
     data = request.json
@@ -56,7 +56,7 @@ def shortlist_decide():
 @jwt_required()
 def get_position_shortlist(position_id):
     if current_user.role != 'employer' and current_user.role != 'staff':
-        return jsonify({f"Unauthorized user"}), 403
+        return jsonify({"message": "Unauthorized user"}), 403
     
     
     shortlists = get_shortlist_by_position(position_id)

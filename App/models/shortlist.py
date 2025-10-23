@@ -12,6 +12,7 @@ class Shortlist(db.Model):
     __tablename__ = 'shortlist'
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'), nullable=False)
+    title = db.Column(db.String(512), nullable=False)
     position_id = db.Column(db.Integer, db.ForeignKey('position.id'))
     staff_id = db.Column(db.Integer, db.ForeignKey('staff.id'), nullable=False)
     status = db.Column(Enum(DecisionStatus, native_enum=False), nullable=False, default=DecisionStatus.pending)
@@ -19,11 +20,12 @@ class Shortlist(db.Model):
     position = db.relationship('Position', backref=db.backref('shortlist', lazy=True))
     staff = db.relationship('Staff', backref=db.backref('shortlist', lazy=True))
 
-    def __init__(self, student_id, position_id, staff_id):
+    def __init__(self, student_id, position_id, staff_id, title):
         self.student_id = student_id
         self.position_id = position_id
         self.status = "pending"
         self.staff_id = staff_id
+        self.title = title
         
     def update_status(self, status):
         self.status = status
@@ -39,6 +41,7 @@ class Shortlist(db.Model):
     def toJSON(self):
         return{
             "id": self.id,
+            "title": self.title,
             "student_id": self.student_id,
             "position_id": self.position_id,
             "staff_id": self.staff_id,
