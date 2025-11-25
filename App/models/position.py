@@ -12,14 +12,17 @@ class Position(db.Model):
     title = db.Column(db.String(255), nullable=False)
     number_of_positions = db.Column(db.Integer, default=1)
     status = db.Column(Enum(PositionStatus, native_enum=False), nullable=False, default=PositionStatus.open)
-    employer_id = db.Column(db.Integer, db.ForeignKey('employer.id'), nullable=False)
+    employer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     employer = db.relationship("Employer", back_populates="positions")
 
-    def __init__(self, title, employer_id, number):
+    gpa_requirement = db.Column(db.Float, nullable=True)
+
+    def __init__(self, title, employer_id, number_of_positions, gpa_requirement=None):
         self.title = title
         self.employer_id = employer_id
-        self.status = "open"
-        self.number_of_positions = number
+        self.status = PositionStatus.open
+        self.number_of_positions = number_of_positions
+        self.gpa_requirement = gpa_requirement
         
 
     def update_status(self, status):
@@ -46,5 +49,6 @@ class Position(db.Model):
             "title": self.title,
             "number_of_positions": self.number_of_positions,
             "status": self.status.value,
+            "gpa_requirement": self.gpa_requirement,
             "employer_id": self.employer_id
         }
