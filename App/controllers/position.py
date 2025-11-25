@@ -2,7 +2,7 @@ from App.models import Position, Employer, Student, Application
 from App.database import db
 
 def open_position(user_id, title, number_of_positions=1, gpa_requirement=None):
-    employer = Employer.query.filter_by(employer_id=user_id).first()
+    employer = Employer.query.filter_by(id=user_id).first()
     if not employer:
         return None
     
@@ -28,7 +28,7 @@ def getEligibleStudents(position):
     return eligible_students            
 
 def get_positions_by_employer(user_id):
-    employer = Employer.query.filter_by(employer_id=user_id).first()
+    employer = Employer.query.filter_by(id=user_id).first()
     return db.session.query(Position).filter_by(employer_id=employer.id).all()
 
 def get_all_positions_json():
@@ -38,7 +38,7 @@ def get_all_positions_json():
     return []
 
 def get_positions_by_employer_json(user_id):
-    employer = Employer.query.filter_by(employer_id=user_id).first()
+    employer = Employer.query.filter_by(id=user_id).first()
     positions = db.session.query(Position).filter_by(employer_id=employer.id).all()
     if positions:
         return [position.toJSON() for position in positions]
