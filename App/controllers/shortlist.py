@@ -1,40 +1,59 @@
-from sqlalchemy import false
-from App.models import Shortlist, Position, Staff, Student
+from App.models import Shortlist, Position, Staff, Student, Application
 from App.database import db
 
-def add_student_to_shortlist(student_id, position_id, staff_id):
-    teacher = db.session.query(Staff).filter_by(user_id=staff_id).first()
-    student = db.session.query(Student).filter_by(user_id=student_id).first()
-    if student == None or teacher == None:
-        return False
-    list = db.session.query(Shortlist).filter_by(student_id=student.id, position_id=position_id).first()
-    position = db.session.query(Position).filter(
-        Position.id == position_id,
-        Position.number_of_positions > 0,
-        Position.status == "open"
+
+# 1. STAFF SHORTLISTS A STUDENT
+def shortlist_student(staff_id, student_id, position_id):
+
+    staff = Staff.query.filter_by(id=staff_id).first()
+    student = Student.query.filter_by(id=student_id).first()
+    position = Position.query.filter_by(id=position_id).first()
+
+    if not staff or not student or not position:
+        return {"error": "Staff, student, or position not found"}, 404
+
+    # Check if application exists
+    app = Application.query.filter_by(
+        student_id=student_id,
+        position_id=position_id
     ).first()
-    if teacher and not list and position:
-        shortlist = Shortlist(student_id=student.id, position_id=position.id, staff_id=teacher.id, title=position.title)
-        db.session.add(shortlist)
-        db.session.commit()
-        return shortlist
-    
-    return False
 
-def decide_shortlist(student_id, position_id, decision):
-    student = db.session.query(Student).filter_by(user_id=student_id).first()
-    shortlist = db.session.query(Shortlist).filter_by(student_id=student.id, position_id=position_id, status ="pending").first()
-    position = db.session.query(Position).filter(Position.id==position_id, Position.number_of_positions > 0).first()
-    if shortlist and position:
-        shortlist.update_status(decision)
-        position.update_number_of_positions(position.number_of_positions - 1)
-        return shortlist
-    return False
+    if not app:
+        return {"error": "Student has not applied for this position"}, 400
 
+    # Prevent duplicate shortlisting
+    existing = Shortlist.query.filter_by(
+        student_id=student_id,
+        position_id=position_id
+    ).first()
 
+    if existing:
+        return {"error": "Student is already shortlisted"}, 400
+
+    # Create shortlist entry
+    shortlist = Shortlist(
+        student_id=student_id,
+        position_id=position_id,
+        staff_id=staff_id,
+        status="shortlisted"
+    )
+
+    db.session.add(shortlist)
+
+    # Update APPLICATION state
+    app.setStatus("shortlisted")
+
+    db.session.commit()
+
+    return shortlist.toJSON(), 201
+
+# 2. GET ALL SHORTLISTS FOR A STUDENT
 def get_shortlist_by_student(student_id):
-    student = db.session.query(Student).filter_by(user_id=student_id).first()
-    return db.session.query(Shortlist).filter_by(student_id=student.id).all()
+    entries = Shortlist.query.filter_by(student_id=student_id).all()
+    return [e.toJSON() for e in entries], 200
 
+
+# 3. GET ALL SHORTLISTS FOR A POSITION
 def get_shortlist_by_position(position_id):
-    return db.session.query(Shortlist).filter_by(position_id=position_id).all()
+    entries = Shortlist.query.filter_by(position_id=position_id).all()
+    return [e.toJSON() for e in entries], 200
