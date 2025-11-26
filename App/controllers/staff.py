@@ -8,21 +8,20 @@ def create_staff(username, password, email, phone_number=None):
     staff = Staff(username, password, email, phone_number)
     db.session.add(staff)
     db.session.commit()
-    return staff.get_json(), 201
+    return staff
 
 
 # 2. GET STAFF BY ID
 def get_staff(staff_id):
     staff = Staff.query.filter_by(id=staff_id).first()
     if not staff:
-        return {"error": "Staff not found"}, 404
-    return staff.get_json(), 200
+        return None
+    return staff
 
 
 # 3. LIST ALL STAFF MEMBERS
 def get_all_staff():
-    staff_list = Staff.query.all()
-    return [s.get_json() for s in staff_list], 200
+    return Staff.query.all()
 
 
 # 4. VIEW ELIGIBLE STUDENTS FOR A POSITION
@@ -30,37 +29,37 @@ def staff_view_eligible_students(staff_id, position_id):
 
     staff = Staff.query.filter_by(id=staff_id).first()
     if not staff:
-        return {"error": "Staff not found"}, 404
+        return None
 
-    return get_eligible_students(position_id)   # returns list + code
+    return get_eligible_students(position_id) 
 
 
 # 5. STAFF SHORTLISTS A STUDENT
 def staff_shortlist_student(staff_id, student_id, position_id):
 
-    staff = Staff.query.filter_by(id=staff_id).first()
-    student = Student.query.filter_by(id=student_id).first()
-    position = Position.query.filter_by(id=position_id).first()
+    staff = Staff.query.get(staff_id)
+    student = Student.query.get(student_id)
+    position = Position.query.get(position_id)
 
     if not staff or not student or not position:
-        return {"error": "Staff, student, or position not found"}, 404
+        return None
 
     # Student must have an application entry (auto-created by Position controller)
     app = Application.query.filter_by(student_id=student_id, position_id=position_id).first()
     if not app:
-        return {"error": "Student is not eligible or never matched to this position"}, 400
-
-    # Check eligibility
-    eligible_list, _ = get_eligible_students(position_id)
-    eligible_ids = [e["student_id"] for e in eligible_list]
+        return None
+    
+    # Must be eligible
+    eligible_students = get_eligible_students(position_id)
+    eligible_ids = [s.id for s in eligible_students]
 
     if student_id not in eligible_ids:
-        return {"error": "Student does not meet GPA requirement"}, 400
+        return None
 
     # Prevent duplicate shortlist
     existing = Shortlist.query.filter_by(student_id=student_id, position_id=position_id).first()
     if existing:
-        return {"error": "Student already shortlisted"}, 400
+        return None
 
     # Create shortlist entry
     shortlist = Shortlist(
@@ -71,18 +70,17 @@ def staff_shortlist_student(staff_id, student_id, position_id):
     db.session.add(shortlist)
 
     # Update application table
-    app.setStatus("shortlisted")
+    shortlist.setStatus("shortlisted")
 
     db.session.commit()
-    return shortlist.toJSON(), 201
+    return shortlist
 
 
 # 6. STAFF SHORTLIST HISTORY
 def staff_shortlist_history(staff_id):
 
-    staff = Staff.query.filter_by(id=staff_id).first()
+    staff = Staff.query.get(staff_id)
     if not staff:
-        return {"error": "Staff not found"}, 404
+        return None
 
-    entries = Shortlist.query.filter_by(staff_id=staff_id).all()
-    return [e.toJSON() for e in entries], 200
+    return Shortlist.query.filter_by(staff_id=staff_id).all()
