@@ -29,7 +29,7 @@ def create_student(username, password, email, gpa, resume=None):
 
     db.session.commit()
 
-    return new_student.get_json(), 201
+    return new_student
 
 
 
@@ -38,31 +38,17 @@ def get_student_applications(student_id):
 
     student = Student.query.filter_by(id=student_id).first()
     if not student:
-        return {"error": "Student not found"}, 404
+        return None
 
     apps = Application.query.filter_by(student_id=student_id).all()
 
-    return [{
-        "application_id": a.id,
-        "position_id": a.position_id,
-        "status": a.status
-    } for a in apps], 200
-
-
+    return apps
 
 # 3. VIEW SHORTLISTED POSITIONS
 def get_student_shortlisted_positions(student_id):
 
     entries = Shortlist.query.filter_by(student_id=student_id, isWithdrawn=False).all()
-
-    return [{
-        "shortlist_id": s.id,
-        "position_id": s.position_id,
-        "staff_id": s.staff_id,
-        "status": s.status
-    } for s in entries], 200
-
-
+    return entries
 
 # 4. VIEW STATUS OF A SPECIFIC APPLICATION
 def get_application_status(student_id, position_id):
@@ -73,18 +59,16 @@ def get_application_status(student_id, position_id):
     ).first()
 
     if not app:
-        return {"error": "Application not found"}, 404
+        return None
 
-    return {"status": app.status}, 200
-
-
+    return app.status
 
 # 5. UPDATE STUDENT PROFILE 
 def update_student_profile(student_id, gpa=None, resume=None):
 
     student = Student.query.filter_by(id=student_id).first()
     if not student:
-        return {"error": "Student not found"}, 404
+        return None
 
     # If GPA changes,need to regenerate eligibility
     gpa_changed = False
@@ -102,7 +86,7 @@ def update_student_profile(student_id, gpa=None, resume=None):
     if gpa_changed:
         refresh_student_applications(student_id)
 
-    return {"message": "Profile updated"}, 200
+    return student
 
 
 
@@ -111,16 +95,16 @@ def get_eligible_positions_for_student(student_id):
 
     student = Student.query.filter_by(id=student_id).first()
     if not student:
-        return {"error": "Student not found"}, 404
+        return None
 
     positions = Position.query.all()
     eligible = []
 
     for p in positions:
         if p.gpa_requirement is None or student.gpa >= p.gpa_requirement:
-            eligible.append(p.toJSON())
+            eligible.append(p)
 
-    return eligible, 200
+    return eligible
 
 
 
@@ -128,6 +112,9 @@ def get_eligible_positions_for_student(student_id):
 def refresh_student_applications(student_id):
 
     student = Student.query.filter_by(id=student_id).first()
+    if not student: 
+        return
+    
     positions = Position.query.all()
 
     # Remove old applications
