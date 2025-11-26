@@ -66,8 +66,7 @@ def staff_shortlist_student(staff_id, student_id, position_id):
     shortlist = Shortlist(
         student_id=student_id,
         position_id=position_id,
-        staff_id=staff_id,
-        status="shortlisted"
+        staff_id=staff_id
     )
     db.session.add(shortlist)
 
