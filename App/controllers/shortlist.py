@@ -7,14 +7,14 @@ def get_eligible_students(position_id):
 
     position = Position.query.filter_by(id=position_id).first()
     if not position:
-        return {"error": "Position not found"}, 404
+        return None
 
     gpa_required = position.gpa_requirement
 
     # All existing Application entries for this position
     applications = Application.query.filter_by(position_id=position_id).all()
 
-    eligible = []
+    eligible_students = []
 
     for app in applications:
         student = Student.query.filter_by(id=app.student_id).first()
@@ -23,27 +23,21 @@ def get_eligible_students(position_id):
 
         # GPA filter
         if gpa_required is None or student.gpa >= gpa_required:
-            eligible.append({
-                "student_id": student.id,
-                "name": student.name,
-                "gpa": student.gpa,
-                "resume": student.resume,
-                "status": app.status
-            })
+            eligible_students.append(student)
 
-    return eligible, 200
+    return eligible_students
 
 
 # 2. GET ALL SHORTLISTS FOR A STUDENT
 def get_shortlist_by_student(student_id):
-    entries = Shortlist.query.filter_by(student_id=student_id).all()
-    return [e.toJSON() for e in entries], 200
+    return Shortlist.query.filter_by(student_id=student_id).all()
+    
 
 
 # 3. GET ALL SHORTLISTS FOR A POSITION
 def get_shortlist_by_position(position_id):
-    entries = Shortlist.query.filter_by(position_id=position_id).all()
-    return [e.toJSON() for e in entries], 200
+    return Shortlist.query.filter_by(position_id=position_id).all()
+   
 
 
 # 4. WITHDRAW A SHORTLIST ENTRY
@@ -52,7 +46,7 @@ def withdraw_shortlist(shortlist_id):
     shortlist = Shortlist.query.filter_by(id=shortlist_id).first()
 
     if not shortlist:
-        return {"error": "Shortlist entry not found"}, 404
+        return None
 
     # Mark as withdrawn
     shortlist.is_withdrawn = True
@@ -61,7 +55,6 @@ def withdraw_shortlist(shortlist_id):
     shortlist.setStatus("withdrawn")
 
     db.session.commit()
-
-    return shortlist.toJSON(), 200
+    return shortlist
 
 
