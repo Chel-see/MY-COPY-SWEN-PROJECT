@@ -17,14 +17,9 @@ class AcceptedState(ApplicationState):
     def acceptOffer(self):
         self.name="Confirmed"
 
-    def rejectOffer(self):
+    def withdraw(self):
         if self.context: # check if there is a valid context
             self.context.setState(RejectedState())
-
-
-    def withdraw(self):
-        if self.context:
-            self.context.setState(None)  # Withdraw the accepted application
-
+            
     def getMatchedCompanies(self):
         return []  # No matched companies for accepted applications
