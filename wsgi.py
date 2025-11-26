@@ -77,13 +77,21 @@ def add_to_shortlist_command(student_id, position_id, staff_id):
         print(f'    There is no more open slots for position {position_id}')
         print("\n\n__________________________________________________________________________\n\n")
 
-@user_cli.command("decide_shortlist", help="Decides on a shortlist")
+@user_cli.command("decide_shortlist", help="Decides a student's shortlist outcome")
 @click.argument("student_id", default=1)
 @click.argument("position_id", default=1)
-@click.argument("decision", default="accepted")
+@click.argument("decision", default="accept")
 def decide_shortlist_command(student_id, position_id, decision):
-    test = decide_shortlist(student_id, position_id, decision)
-    if test:
+
+    decision = decision.lower().strip()
+    if decision not in ['accept', 'reject']:
+        print("Invalid. Decision must be either 'accept' or 'reject'")
+        print("\n\n__________________________________________________________________________\n\n")
+        return
+    
+    result = decide_shortlist(student_id, position_id, decision)
+    
+    if result:
         print(f'Student {student_id} is {decision} for position {position_id}')
         print("\n\n__________________________________________________________________________\n\n")
     else:
