@@ -11,8 +11,12 @@ def create_student(username, password, email, gpa, resume=None):
         username=username,
         password=password,
         email=email,
-        gpa=gpa,
-        resume=resume
+        phone_number=phone_number,
+        degree=degree,
+        resume=resume,
+        dob=dob,
+        gpa=gpa
+        
     )
 
     db.session.add(new_student)
