@@ -21,7 +21,7 @@ class ShortListedState(ApplicationState):
         if self.context:
             self.context.setState(AppliedState())
 
-    def removeShortList(self);
+    def removeShortList(self):
         return None #Not implemented - to be removed
 
     def withdraw(self):
