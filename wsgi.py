@@ -4,7 +4,7 @@ from flask.cli import with_appcontext, AppGroup
 from App.database import db, get_migrate
 from App.models import User
 from App.main import create_app
-from App.controllers import ( create_user, get_all_users_json, get_all_users, initialize, open_position, add_student_to_shortlist, decide_shortlist, get_shortlist_by_student, get_shortlist_by_position, get_positions_by_employer)
+from App.controllers import ( create_user, get_all_users_json, get_all_users, initialize, open_position, staff_shortlist_student, decide_shortlist, get_shortlist_by_student, get_shortlist_by_position, get_positions_by_employer)
 
 
 # This commands file allow you to create convenient CLI commands for testing controllers
@@ -61,21 +61,29 @@ def add_position_command(title, employer_id, number):
     else:
         print(f'Employer {employer_id} does not exist')
 
-@user_cli.command("add_to_shortlist", help="Adds a student to a shortlist")
-@click.argument("student_id", default=1)
+
+
+@user_cli.command("add_to_shortlist", help="Staff adds a student to a shortlist")
+@click.argument("staff_id", default=2)
+@click.argument("student_id", default=3)
 @click.argument("position_id", default=1)
-@click.argument("staff_id", default=1)
-def add_to_shortlist_command(student_id, position_id, staff_id):
-    test = add_student_to_shortlist(student_id, position_id, staff_id)
+
+
+def add_to_shortlist_command(staff_id, student_id, position_id):
+
+    test = staff_shortlist_student(staff_id, student_id, position_id)
     if test:
-        print(f'Student {student_id} added to shortlist for position {position_id}')
+
+        print(f'Student {test.student_id} added to shortlist for position {test.position_id} by staff {test.staff_id}')
         print("\n\n__________________________________________________________________________\n\n")
     else:
         print('One of the following is the issue:')
-        print(f'    Position {position_id} is not open')
-        print(f'    Student {student_id} already in shortlist for position {position_id}')
-        print(f'    There is no more open slots for position {position_id}')
+        print(f'    An application for this student {student_id} was not found.')
+        print(f'    Student {student_id} does not meet GPA requirements')
+        print(f'    A shortlist already exist for student {student_id}')
         print("\n\n__________________________________________________________________________\n\n")
+
+
 
 @user_cli.command("decide_shortlist", help="Decides on a shortlist")
 @click.argument("student_id", default=1)
