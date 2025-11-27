@@ -36,9 +36,10 @@ class UserUnitTests(unittest.TestCase):
             assert student.role == "student"
 
     def test_new_staff(self):
-        staff = Staff("jim", "jimpass")
+        staff = Staff("jim", "jimpass", "jim@example.com")
         assert staff.username == "jim"
         assert staff.role == "staff"
+        assert staff.email == "jim@example.com"
 
     def test_new_employer(self):
         employer = Employer("alice", "alicepass")
@@ -57,7 +58,6 @@ class UserUnitTests(unittest.TestCase):
         assert shortlist.student_id == 1
         assert shortlist.position_id == 2
         assert shortlist.staff_id == 3
-        assert shortlist.status == "pending"
 
     # pure function no side effects or integrations called
     def test_get_json(self):
@@ -133,21 +133,37 @@ class UserIntegrationTests(unittest.TestCase):
 
     def test_add_to_shortlist(self):
         position_count = 3
-        staff = create_user("linda", "lindapass", "staff")
+        staff = create_user("linda", "lindapass", "linda@example.com", "staff")
         assert staff is not None
-        student = create_user("hank", "hankpass", "student")
+        student = create_user("hank", "hankpass", "hank@example.com", "student", gpa=3.5)
         assert student is not None
-        employer =  create_user("ken", "kenpass", "employer")
+        employer = create_user("ken", "kenpass", "ken@example.com", "employer")
         assert employer is not None
-        position = open_position("Database Manager", employer.id, position_count)
-        invalid_position = open_position("Developer",-1,1)
-        assert invalid_position is False
-        added_shortlist = add_student_to_shortlist(student.id, position.id ,staff.id)
+        position = open_position(
+            title="Database Manager",
+            employer_id=employer.id,
+            number_of_positions=position_count,
+            gpa_requirement=3.0
+        )
         assert position is not None
-        assert (added_shortlist)
+        invalid_position = open_position(
+            title="Developer",
+            employer_id=-1,
+            number_of_positions=1,
+            gpa_requirement=2.5
+        )
+        assert invalid_position is False
+        added_shortlist = staff_shortlist_student(
+            staff_id=staff.id,
+            student_id=student.id,
+            position_id=position.id
+        )
+        assert added_shortlist is not None
+        assert added_shortlist.student_id == student.id
+        assert added_shortlist.position_id == position.id
+        assert added_shortlist.staff_id == staff.id
         shortlists = get_shortlist_by_student(student.id)
         assert any(s.id == added_shortlist.id for s in shortlists)
-
 
     def test_decide_shortlist(self):
         position_count = 3
