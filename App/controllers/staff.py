@@ -75,13 +75,13 @@ def staff_shortlist_student(staff_id, student_id, position_id):
         return None
 
     # Prevent duplicate shortlist
-    existing = Shortlist.query.filter_by(student_id=student_id, position_id=position_id).first()
+    existing = Shortlist.query.filter_by(application_id=app.id).first() # bc its composition 
     if existing:
         print("Student is already shortlisted")
         return None
 
     # Create shortlist entry
-    shortlist=Shortlist(app, staff_id)
+    shortlist=Shortlist(application_id=app.id, staff_id=staff_id)
     db.session.add(shortlist)
 
     db.session.commit()
@@ -91,7 +91,7 @@ def staff_shortlist_student(staff_id, student_id, position_id):
 
     
 
-    print(f"Shortlist {shortlist.id} created successfully for student {shortlist.student_id} for position {shortlist.position_id} by staff {shortlist.staff_id}")
+    print(f"Shortlist {shortlist.application_id} created successfully for student {shortlist.application.student_id} for position {shortlist.application.position_id} by staff {shortlist.staff_id}")
     return shortlist
 
 
