@@ -5,18 +5,18 @@ class RejectedState(ApplicationState):
         super().__init__("Rejected")
         self.reason = reason
 
-    def next(self):
+    def next(self, app):
         return None  # No next state from Rejected
 
-    def previous(self):
-        if self.context:
+    def previous(self, app):
+        
             from App.models.shortlisted_state import ShortListedState
-            self.context.setState(ShortListedState())
+            app.set_state(ShortListedState())
         
     def viewReason(self):
         return self.reason
 
-    def withdraw(self):
+    def withdraw(self, app):
         return None  # Cannot withdraw a rejected application
 
     def getMatchedCompanies(self):

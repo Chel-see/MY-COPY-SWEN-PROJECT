@@ -20,16 +20,20 @@ def initialize():
     db.session.add(application1)
     db.session.commit()
     print(f'Application {application1.id} created')
+    Status=application1.getStatus()
+    print(Status)
 
-    application2=Application(student_id=4,position_id=1) #id=1 # new change added application
-    db.session.add(application2)
-    db.session.commit()
-    print(f'Application {application2.id} created')
+    # application2=Application(student_id=4,position_id=1) #id=1 # new change added application
+    # db.session.add(application2)
+    # db.session.commit()
+    # print(f'Application {application2.id} created')
 
     open_position(1,"Web Developer", 2, gpa_requirement=2.5) # id=1
     staff_shortlist_student(2,3,1)
+    Status=application1.getStatus()
+    print(Status)
 
-    staff_shortlist_student(2,4,1)  # Attempt to shortlist the same student again
+    # staff_shortlist_student(2,4,1)  # Attempt to shortlist the same student again
     
    
 

@@ -1,7 +1,7 @@
 from App.database import db
 from App.models.user import User
 
-from App.models.context import Context
+
 
 
 class Shortlist(db.Model):  # because an application can exit and be a shortlisted application

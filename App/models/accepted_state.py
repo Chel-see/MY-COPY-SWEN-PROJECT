@@ -5,21 +5,21 @@ class AcceptedState(ApplicationState):
     def __init__(self):
         super().__init__("Accepted")
 
-    def next(self):
+    def next(self,app):
         return None  # No direct next state from Accepted
 
-    def previous(self):
-        if self.context:
+    def previous(self,app):
+       
             from models.shortlisted_state import ShortListedState
-            self.context.setState(ShortListedState())  # No previous state from Accepted
+            app.set_state(ShortListedState())  # No previous state from Accepted
 
     def acceptOffer(self):
         self.name="Confirmed"
 
-    def withdraw(self):
-        if self.context: # check if there is a valid context
+    def withdraw(self,app):
+        
             from models.rejected_state import RejectedState
-            self.context.setState(RejectedState())
+            app.set_tate(RejectedState())
             
     def getMatchedCompanies(self):
         return []  # No matched companies for accepted applications

@@ -85,6 +85,10 @@ def staff_shortlist_student(staff_id, student_id, position_id):
     db.session.add(shortlist)
 
     db.session.commit()
+
+    if shortlist:
+        from App.models.shortlisted_state import ShortListedState
+        shortlist.application.set_state(ShortListedState())
     # Update parent Application state
     #shortlist.setStatus("shortlisted") # new change , applications status is updated by the application class to the state name.
     # shortlist no longer has a status attribute or a method to setStatus.
