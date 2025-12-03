@@ -19,16 +19,7 @@ def open_position(user_id, title, number_of_positions=1, gpa_requirement=None):
         db.session.rollback()
         return None
 
-# def getEligibleStudents(position):
-#     students = db.session.query(Student).all()
-#     eligible_students=[]
-#     for student in students:
-#         if student.gpa >= position.gpa_requirement or position.gpa_requirement is None:
-#             application = Application(student_id=student.id, position_id=position.id)
-#             db.session.add(application)
-#             eligible_students.append(student)
-#     db.session.commit()
-#     return eligible_students            
+          
 
 def get_position(position_id):  # needed for testing 
     return Position.query.get(position_id)
