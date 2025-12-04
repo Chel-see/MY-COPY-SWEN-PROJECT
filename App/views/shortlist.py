@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, current_user
-from App.controllers import ( add_student_to_shortlist, decide_shortlist, get_shortlist_by_student, get_shortlist_by_position)
+from App.controllers import ( staff_shortlist_student, decide_shortlist, get_shortlist_by_student, get_shortlist_by_position)
 
 
 shortlist_views = Blueprint('shortlist_views', __name__)
@@ -13,7 +13,7 @@ def add_student_shortlist():
         return jsonify({"message": "Unauthorized user"}), 403
     
      data = request.json
-     request_result = add_student_to_shortlist(student_id=data['student_id'], position_id=data['position_id'], staff_id=current_user.id)
+     request_result = staff_shortlist_student(student_id=data['student_id'], position_id=data['position_id'], staff_id=current_user.id)
      
      if request_result:
          return jsonify(request_result.toJSON()), 200
